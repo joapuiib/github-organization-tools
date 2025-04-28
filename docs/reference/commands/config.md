@@ -50,9 +50,9 @@ ghot config show [<key>]
 ### [[csv#pattern-options|CSV Options]]
 | Config Key | CLI Option | Default Value | Description |
 |--------|---------------|-------------|--------|
-| `pattern.id` | `--pattern-id` | `{id}` | Pattern for [`id` field][fields]. |
-| `pattern.username` | `--pattern-username` | `{username}` | Pattern for [`username` field][fields]. |
-| `pattern.repo` | `--pattern-repo` | `{repo}` | Pattern for [`repo` field][fields]. |
-| `pattern.description` | `--pattern-description` | `{description?}` | Pattern for [`description` field][fields]. |
+| `csv.pattern.id` | `--pattern-id` | `{id}` | Pattern for [`id` field][fields]. |
+| `csv.pattern.username` | `--pattern-username` | `{username}` | Pattern for [`username` field][fields]. |
+| `csv.pattern.repo` | `--pattern-repo` | `{repo}` | Pattern for [`repo` field][fields]. |
+| `csv.pattern.description` | `--pattern-description` | `""` | Pattern for [`description` field][fields]. |
 
 [fields]: ../options/csv.md#fields

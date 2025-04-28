@@ -68,10 +68,10 @@ Patterns support:
         ```
     === "Config"
         ```bash
-        ghot config pattern.id "{f0}"
-        ghot config pattern.username "{f1}"
-        ghot config pattern.repo "{f2}"
-        ghot config pattern.description ""
+        ghot config csv.pattern.id "{f0}"
+        ghot config csv.pattern.username "{f1}"
+        ghot config csv.pattern.repo "{f2}"
+        ghot config csv.pattern.description ""
         ghot user invite my-org users.csv
         ```
 
@@ -101,10 +101,10 @@ Patterns support:
         ```
     === "Config"
         ```bash
-        ghot config pattern.id "{id}"
-        ghot config pattern.username "{username}"
-        ghot config pattern.repo "{repo}"
-        ghot config pattern.description "{description?}"
+        ghot config csv.pattern.id "{id}"
+        ghot config csv.pattern.username "{username}"
+        ghot config csv.pattern.repo "{repo}"
+        ghot config csv.pattern.description "{description?}"
         ghot user invite my-org users.csv
         ```
 
@@ -130,8 +130,8 @@ Patterns support:
 
     === "Config"
         ```bash
-        ghot config pattern.repo "{username}-repo"
-        ghot config pattern.description "Repository for {username}"
+        ghot config csv.pattern.repo "{username}-repo"
+        ghot config csv.pattern.description "Repository for {username}"
         ghot repo create my-org users.csv
         ```
 
@@ -170,8 +170,8 @@ Filters are used to transform the data extracted from the CSV file.
 
     === "Config"
         ```bash
-        ghot config pattern.id "{f0.upper()}"
-        ghot config pattern.repo "{f2.replace('-', '_')}"
+        ghot config csv.pattern.id "{f0.upper()}"
+        ghot config csv.pattern.repo "{f2.replace('-', '_')}"
         ghot user invite my-org users.csv
         ```
 
@@ -200,19 +200,19 @@ Filters are used to transform the data extracted from the CSV file.
 
     === "Config"
         ```bash
-        ghot config pattern.id "{f0.lower()}.{f1.words(0).lower()}"
-        ghot config pattern.username "{f2}"
-        ghot config pattern.repo "{f1.words(0).title()}{f0.title()}-Repository"
-        ghot config pattern.description "Repository for {f0.title()} {f1.title()}"
+        ghot config csv.pattern.id "{f0.lower()}.{f1.words(0).lower()}"
+        ghot config csv.pattern.username "{f2}"
+        ghot config csv.pattern.repo "{f1.words(0).title()}{f0.title()}-Repository"
+        ghot config csv.pattern.description "Repository for {f0.title()} {f1.title()}"
         ghot user invite my-org users.csv
         ```
 
 ## Pattern Options
 | Config Key | CLI Option | Default Value | Description |
 |--------|---------------|-------------|--------|
-| `pattern.id` | `--pattern-id` | `{id}` | Pattern for [`id` field][fields]. |
-| `pattern.username` | `--pattern-username` | `{username}` | Pattern for [`username` field][fields]. |
-| `pattern.repo` | `--pattern-repo` | `{repo}` | Pattern for [`repo` field][fields]. |
-| `pattern.description` | `--pattern-description` | `{description?}` | Pattern for [`description` field][fields]. |
+| `csv.pattern.id` | `--pattern-id` | `{id}` | Pattern for [`id` field][fields]. |
+| `csv.pattern.username` | `--pattern-username` | `{username}` | Pattern for [`username` field][fields]. |
+| `csv.pattern.repo` | `--pattern-repo` | `{repo}` | Pattern for [`repo` field][fields]. |
+| `csv.pattern.description` | `--pattern-description` | `""` | Pattern for [`description` field][fields]. |
 
 [fields]: #fields

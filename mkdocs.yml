@@ -1,8 +1,8 @@
 site_name: "GitHub Organization Tools"
 site_author: "Joan Puigcerver Ibáñez"
-site_url: https://joapuiib.github.io/github-organitzation-tools/
-repo_name: joapuiib/github-organitzation-tools
-repo_url: https://github.com/joapuiib/github-organitzation-tools/
+site_url: https://joapuiib.github.io/github-organization-tools/
+repo_name: joapuiib/github-organization-tools
+repo_url: https://github.com/joapuiib/github-organization-tools/
 
 extra:
   social:
