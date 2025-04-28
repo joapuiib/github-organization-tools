@@ -1,0 +1,114 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ghot"
+dynamic = ["version"]
+description = "GitHub Organization Tools"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+authors = [
+    { name = "Joan Puigcerver", email = "joapuiib@gmail.com" },
+]
+classifiers = [
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "PyGithub",
+    "GitPython",
+    "colorama",
+    "keyring",
+]
+
+[project.urls]
+Documentation = "https://joapuiib.github.io/github-organization-tools"
+Download = "https://github.com/joapuiib/github-organization-tools/releases"
+Homepage = "https://joapuiib.github.io/github-organization-tools"
+Source = "https://github.com/joapuiib/github-organization-tools"
+Tracker = "https://github.com/joapuiib/github-organization-tools/issues"
+
+[tool.hatch.version]
+path = "ghot/ghot.py"
+
+[project.scripts]
+ghot = "ghot.ghot:main"
+
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/ghot",
+    "/tests",
+]
+[tool.hatch.build.targets.wheel]
+packages = ["ghot"]
+exclude = ["/tests"]
+
+[tool.hatch.envs.default.scripts]
+all = [
+    "hatch run test:test",
+    "hatch run style:check",
+]
+
+[tool.hatch.envs.test]
+dependencies = [
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "pyfakefs",
+]
+
+[tool.hatch.envs.test.scripts]
+test = "pytest"
+
+
+[tool.hatch.envs.docs]
+dependencies = [
+    "mkdocs-material[imaging]~=9.5",
+    "mkdocs-alias-plugin~=0.9",
+    "mkdocs-git-revision-date-localized-plugin~=1.2",
+]
+
+[tool.hatch.envs.docs.scripts]
+serve = [
+    "mkdocs serve",
+]
+build = [
+    "mkdocs build",
+]
+
+[tool.hatch.envs.style]
+detached = true
+dependencies = [
+    "black",
+    "isort",
+    "ruff",
+]
+
+[tool.hatch.envs.style.scripts]
+check = [
+    "isort --check-only --diff ghot",
+    "black -q --check --diff ghot",
+    "ruff check ghot",
+]
+format = [
+    "isort -q ghot",
+    "black -q ghot",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+skip-string-normalization = true
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+ignore = ["E501"]
+
