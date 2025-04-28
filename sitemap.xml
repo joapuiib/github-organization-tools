@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://joapuiib.github.io/github-organitzation-tools/</loc>
+         <loc>https://joapuiib.github.io/github-organization-tools/</loc>
          <lastmod>2025-04-28</lastmod>
     </url>
     <url>
-         <loc>https://joapuiib.github.io/github-organitzation-tools/reference/</loc>
+         <loc>https://joapuiib.github.io/github-organization-tools/reference/</loc>
          <lastmod>2025-04-28</lastmod>
     </url>
     <url>
-         <loc>https://joapuiib.github.io/github-organitzation-tools/reference/commands/auth/</loc>
+         <loc>https://joapuiib.github.io/github-organization-tools/reference/commands/auth/</loc>
          <lastmod>2025-04-28</lastmod>
     </url>
     <url>
-         <loc>https://joapuiib.github.io/github-organitzation-tools/reference/commands/config/</loc>
+         <loc>https://joapuiib.github.io/github-organization-tools/reference/commands/config/</loc>
          <lastmod>2025-04-28</lastmod>
     </url>
     <url>
-         <loc>https://joapuiib.github.io/github-organitzation-tools/reference/commands/repositories/</loc>
+         <loc>https://joapuiib.github.io/github-organization-tools/reference/commands/repositories/</loc>
          <lastmod>2025-04-28</lastmod>
     </url>
     <url>
-         <loc>https://joapuiib.github.io/github-organitzation-tools/reference/commands/users/</loc>
+         <loc>https://joapuiib.github.io/github-organization-tools/reference/commands/users/</loc>
          <lastmod>2025-04-28</lastmod>
     </url>
     <url>
-         <loc>https://joapuiib.github.io/github-organitzation-tools/reference/options/csv/</loc>
+         <loc>https://joapuiib.github.io/github-organization-tools/reference/options/csv/</loc>
          <lastmod>2025-04-28</lastmod>
     </url>
 </urlset>
