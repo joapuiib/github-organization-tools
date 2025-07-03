@@ -34,18 +34,19 @@ class PatternFormatter:
     def __init__(self, schema=None):
         self.schema = schema or {}
 
-    def resolve_field(self, name, row):
-        match = re.match(r'^f(\d+)$', name)
+    def resolve_field(self, name_or_index, row):
+        match = re.match(r'^f(\d+)$', name_or_index)
         if match:
             index = int(match.group(1))
             if index < 0 or index >= len(row):
-                raise ValueError(f"Index {index} out of range for row with length {len(row)}")
+                r = ','.join(row)
+                raise ValueError(f"Index {index} out of range for row '{r}'")
             return row[index]
-        elif name in self.schema:
-            index = self.schema.get(name)
+        elif name_or_index in self.schema:
+            index = self.schema.get(name_or_index)
             return row[index]
         else:
-            raise ValueError(f"Field '{name}' not found in schema")
+            raise ValueError(f"Field '{name_or_index}' not found in schema")
 
     def apply_expr(self, expr, row):
         tree = ast.parse(expr, mode='eval')

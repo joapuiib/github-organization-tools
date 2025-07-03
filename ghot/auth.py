@@ -1,5 +1,7 @@
 import getpass
 import keyring
+import shutil
+import subprocess
 from github import Github, Auth
 
 SERVICE_NAME = "github_pat"
@@ -7,18 +9,40 @@ SERVICE_NAME = "github_pat"
 class AuthManager:
     def __init__(self):
         self.system_user = getpass.getuser()
+        self.token = None
+        self.gh_available = shutil.which("gh") is not None
         self._load_token()
 
 
     def _load_token(self):
-        self.token = keyring.get_password(SERVICE_NAME, self.system_user)
+        if self.gh_available:
+            try:
+                self.token = subprocess.check_output(["gh", "auth", "token"]).decode("utf-8").strip()
+                return
+            except subprocess.CalledProcessError:
+                pass  # Not authenticated via gh CLI
+
+        else: # Fallback to keyring
+            self.token = keyring.get_password(SERVICE_NAME, self.system_user)
 
 
     def init(self):
         if not self.token:
-            self.token = getpass.getpass("Enter your GitHub Personal Access Token: ").strip()
-            if input("Save this token for future use? (y/n): ").strip().lower() == 'y':
-                keyring.set_password(SERVICE_NAME, self.system_user, self.token)
+            if self.gh_available:
+                try:
+                    print("Using GitHub CLI to authenticate...")
+                    subprocess.run([
+                        "gh", "auth", "login",
+                        "--scopes", "repo,read:org,gist,workflow,admin:org,delete_repo",
+                    ], check=True)
+                    self._load_token()
+                except subprocess.CalledProcessError:
+                    print("GitHub CLI authentication failed")
+
+            else: # Fallback to keyring
+                self.token = getpass.getpass("Enter your GitHub Personal Access Token: ").strip()
+                if input("Save this token for future use? (y/n): ").strip().lower() == 'y':
+                    keyring.set_password(SERVICE_NAME, self.system_user, self.token)
 
 
     def has_token(self):

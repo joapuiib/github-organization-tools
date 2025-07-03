@@ -37,7 +37,7 @@ class OrgManager:
 
     def _print_status(self, user, status):
         message, color, style = self._unpack_status(status)
-        print(f"{style}{color}{user.id}: {message}.{Style.RESET_ALL}")
+        print(f"{Style.BRIGHT}{Fore.GREEN}{user.id}{Style.RESET_ALL}: {style}{color}{message}.{Style.RESET_ALL}")
 
     def _confirm_action(self, prompt, force):
         return force or self._confirm_prompt(prompt)
@@ -54,7 +54,7 @@ class OrgManager:
             if not user.is_valid():
                 continue
 
-            print(f"{user.id}: ...", end="\r")
+            print(f"{Style.BRIGHT}{Fore.GREEN}{user.id}{Style.RESET_ALL}: ...", end="\r")
             result = process_func(user)
             kwargs = {}
             if isinstance(result, tuple):

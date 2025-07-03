@@ -18,7 +18,7 @@ to perform.
 The following scopes are required for the different available commands:
 
 - [[users]]:
-    - `write:org` required to invite users to an organization.
+    - `admin:org` required to invite and remove users from an organization.
 - [[repository]]:
     - `delete_repo` required to delete repositories.
 
