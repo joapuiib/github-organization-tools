@@ -27,7 +27,7 @@ def build_parser():
     # ghot auth
     auth_p = commands.add_parser('auth')
     ## ghot auth check|print|remove
-    auth_p.add_argument('auth_commands', choices=['check', 'remove', 'print'], help='Authentication command')
+    auth_p.add_argument('auth_commands', choices=['check', 'login', 'remove', 'print'], help='Authentication command')
 
     # ghot config
     config_p = commands.add_parser('config')
@@ -128,8 +128,15 @@ def handle_auth(args):
     auth = AuthManager()
     match args.auth_commands:
         case "check":
-            auth.init()
-            print(f"Authenticated as {auth.client().get_user().login}")
+            if auth.has_token():
+                print(f"Authenticated as {auth.client().get_user().login}")
+            else:
+                print("Not authenticated")
+        case "login":
+            if auth.has_token():
+                print("Already authenticated as", auth.client().get_user().login)
+                return
+            auth.login()
         case "print":
             auth.print_token()
         case "remove":
@@ -179,8 +186,7 @@ def handle_issue(args):
 
 
 def init_org_manager(args):
-    auth = AuthManager()
-    auth.init()
+    auth = AuthManager(init=True)
     org_manager = OrgManager(auth.client())
     return org_manager
 
