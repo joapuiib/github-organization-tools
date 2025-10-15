@@ -2,19 +2,20 @@
 icon: octicons/key-16
 alias: auth
 ---
+*[PAT]: Personal Access Token
 
 # Authentication
-GitHub Organization Tools requires authentication to access the GitHub API.
+GitHub Organization Tools requires authentication to access the GitHub API, which is achieved using [Personal Access Tokens (PAT)][pat].
+
+[pat]: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+
+The application will try to authenticate using `gh`, the [:simple-github: GitHub CLI tool][gh], which will create a PAT with the required scopes.
+If this tool is not available, you will be prompted to enter it manually.
+
+[gh]: https://cli.github.com/
 
 
-## Personal Access Tokens
-GitHub Organization Tools uses [Personal Access Tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
-to authenticate with the GitHub API.
-
-The scopes required for the token depend on the actions you want
-to perform.
-
-### Required Scopes
+## Required Scopes
 The following scopes are required for the different available commands:
 
 - [[users]]:
@@ -25,7 +26,8 @@ The following scopes are required for the different available commands:
 [invite]: invite.md
 [delete]: delete.md
 
-### Storing the Token
+
+## Storing the Token
 GitHub Organization Tools can store the token in the system [`keyring`][keyring]
 if the user allows it when prompted to do so.
 
@@ -36,6 +38,12 @@ Enter your GitHub Personal Access Token: <token>
 Save this token for future use? (y/n): y
 ```
 
+## Logging In
+You can log in by running the command:
+
+```bash
+ghot auth login
+```
 
 ## Checking Authentication
 You can check if you are authenticated by running the following command:
