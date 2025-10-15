@@ -129,12 +129,12 @@ def handle_auth(args):
     match args.auth_commands:
         case "check":
             if auth.has_token():
-                print(f"Authenticated as {auth.client().get_user().login}")
+                print(f"Authenticated as {auth.username()} via {auth.method()}")
             else:
                 print("Not authenticated")
         case "login":
             if auth.has_token():
-                print("Already authenticated as", auth.client().get_user().login)
+                print(f"Already authenticated as {auth.username()} via {auth.method()}")
                 return
             auth.login()
         case "print":

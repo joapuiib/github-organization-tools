@@ -1,5 +1,6 @@
 import getpass
 import keyring
+from keyring.errors import KeyringError, NoKeyringError
 import shutil
 import subprocess
 import logging
@@ -14,10 +15,36 @@ class AuthManager:
         self.system_user = getpass.getuser()
         self.token = None
         self.gh_available = shutil.which("gh") is not None
+        self.keyring_available = self._check_keyring_available()
+
         self._load_token()
         if init and not self.token:
             self.login()
 
+    def method(self):
+        if self.gh_available:
+            return "GitHub CLI"
+        elif self.keyring_available:
+            return "Keyring"
+        else:
+            return "None"
+
+    def username(self):
+        if not self.token:
+            return None
+        return self.client().get_user().login
+
+    def _check_keyring_available(self) -> bool:
+        """Return True if a usable keyring backend is available."""
+        try:
+            kr = keyring.get_keyring()
+            # Try a tiny test operation
+            test_service, test_user = "__keyring_test__", "__keyring_user__"
+            keyring.set_password(test_service, test_user, "x")
+            keyring.delete_password(test_service, test_user)
+            return True
+        except (KeyringError, NoKeyringError, RuntimeError):
+            return False
 
     def _load_token(self):
         if self.gh_available:
@@ -30,29 +57,36 @@ class AuthManager:
             except subprocess.CalledProcessError:
                 pass  # Not authenticated via gh CLI
 
-        else: # Fallback to keyring
+        if self.keyring_available:
             logging.info("GitHub CLI not found. Checking keyring for stored token...")
             self.token = keyring.get_password(SERVICE_NAME, self.system_user)
+        else:
+            logging.warning("No keyring backend available. Cannot retrieve stored token.")
 
 
     def login(self):
-        if not self.token:
-            if self.gh_available:
-                try:
-                    logging.info("Using GitHub CLI to authenticate...")
-                    subprocess.run([
-                        "gh", "auth", "login",
-                        "--git-protocol", "https",
-                        "--scopes", "repo,read:org,gist,workflow,admin:org,delete_repo",
-                    ], check=True)
-                    self._load_token()
-                except subprocess.CalledProcessError:
-                    print("GitHub CLI authentication failed")
+        if self.token:
+            return
 
-            else: # Fallback to keyring
-                self.token = getpass.getpass("Enter your GitHub Personal Access Token: ").strip()
-                if input("Save this token for future use? (y/n): ").strip().lower() == 'y':
-                    keyring.set_password(SERVICE_NAME, self.system_user, self.token)
+        if self.gh_available:
+            try:
+                logging.info("Using GitHub CLI to authenticate...")
+                subprocess.run([
+                    "gh", "auth", "login",
+                    "--scopes", "repo,read:org,gist,workflow,admin:org,delete_repo",
+                    "--git-protocol", "https",
+                    "--hostname", "github.com"
+                    "--web",
+                ], check=True)
+                self._load_token()
+                return
+            except subprocess.CalledProcessError:
+                print("GitHub CLI authentication failed")
+
+        if self.keyring_available:
+            self.token = getpass.getpass("Enter your GitHub Personal Access Token: ").strip()
+            if input("Save this token for future use? (y/n): ").strip().lower() == 'y':
+                keyring.set_password(SERVICE_NAME, self.system_user, self.token)
 
 
     def has_token(self):
@@ -89,10 +123,11 @@ class AuthManager:
             try:
                 subprocess.run(["gh", "auth", "logout"], check=True)
                 logging.info("Logged out via GitHub CLI.")
+                return
             except subprocess.CalledProcessError:
                 print("GitHub CLI logout failed or not authenticated via gh CLI.")
 
-        else: # Fallback to keyring
+        if self.keyring_available:
             if response.lower() == "y":
                 keyring.delete_password(SERVICE_NAME, self.system_user)
                 print(f"Removed token for user '{self.system_user}'.")
