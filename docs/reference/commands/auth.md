@@ -9,26 +9,26 @@ GitHub Organization Tools requires authentication to access the GitHub API, whic
 
 [pat]: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 
-The application will try to authenticate using `gh`, the [:simple-github: GitHub CLI tool][gh], which will create a PAT with the required scopes.
-If this tool is not available, you will be prompted to enter it manually.
+The application will try to authenticate using `gh`, the [:simple-github: GitHub CLI tool][gh].
+If `gh` is not available, you will be prompted to enter your PAT manually.
 
 [gh]: https://cli.github.com/
 
 
 ## Required Scopes
-The following scopes are required for the different available commands:
+Different commands require different scopes:
 
-- [[users]]:
-    - `admin:org` required to invite and remove users from an organization.
-- [[repository]]:
-    - `delete_repo` required to delete repositories.
+| Command         | Required Scope                          | Description                                   |
+|-----------------|-----------------------------------------|-----------------------------------------------|
+| [[users]]       | `admin:org`                             | Invite or remove users from an organization  |
+| [[repository]]  | `delete_repo`                           | Delete repositories   
 
-[invite]: invite.md
-[delete]: delete.md
 
 
 ## Storing the Token
-GitHub Organization Tools can store the token in the system [`keyring`][keyring]
+When using [:simple-github: GitHub CLI tool][gh], the token is stored automatically by `gh`.
+
+If not, `ghot` can store the token in the system [`keyring`][keyring]
 if the user allows it when prompted to do so.
 
 [keyring]: https://pypi.org/project/keyring/
@@ -38,12 +38,14 @@ Enter your GitHub Personal Access Token: <token>
 Save this token for future use? (y/n): y
 ```
 
+
 ## Logging In
 You can log in by running the command:
 
 ```bash
 ghot auth login
 ```
+
 
 ## Checking Authentication
 You can check if you are authenticated by running the following command:
@@ -54,6 +56,7 @@ ghot auth check
 
 If not authenticated, you will be prompted to enter
 your GitHub Personal Access Token.
+
 
 ## Removing the Token
 You can remove the token from the keyring by running
