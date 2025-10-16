@@ -75,7 +75,6 @@ class AuthManager:
                     "gh", "auth", "login",
                     "--scopes", "repo,read:org,gist,workflow,admin:org,delete_repo",
                     "--git-protocol", "https",
-                    "--hostname", "github.com"
                     "--web",
                 ], check=True)
                 self._load_token()
