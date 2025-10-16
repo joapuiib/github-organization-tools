@@ -66,6 +66,7 @@ def build_parser():
     add_dry_option(repo_create_p)
     repo_create_p.add_argument('--public', action='store_true', help='Create public repositories')
     repo_create_p.add_argument('--private', action='store_true', help='Create private repositories')
+    repo_create_p.add_argument('--username-only', action='store_true', help='Create repositories for entries that have specified an username')
     ## ghot repo clone [-d|--destination <path>] <csv>
     repo_clone_p = repo_commands.add_parser('clone')
     repo_clone_p.add_argument("org", help='Organization name')
@@ -164,7 +165,7 @@ def handle_repo(args):
             if args.public and not args.private:
                 private = False
 
-            org_manager.repo_create(args.org, users, private=private, dry=args.dry)
+            org_manager.repo_create(args.org, users, private=private, dry=args.dry, username_only=args.username_only)
 
         case "clone":
             org_manager.repo_clone(args.org, users, destination=args.destination, dry=args.dry, ssh=args.ssh)
