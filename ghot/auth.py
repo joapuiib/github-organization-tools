@@ -127,6 +127,5 @@ class AuthManager:
                 print("GitHub CLI logout failed or not authenticated via gh CLI.")
 
         if self.keyring_available:
-            if response.lower() == "y":
-                keyring.delete_password(SERVICE_NAME, self.system_user)
-                print(f"Removed token for user '{self.system_user}'.")
+            keyring.delete_password(SERVICE_NAME, self.system_user)
+            print(f"Removed token for user '{self.system_user}'.")

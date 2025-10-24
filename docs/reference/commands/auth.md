@@ -20,8 +20,8 @@ Different commands require different scopes:
 
 | Command         | Required Scope                          | Description                                   |
 |-----------------|-----------------------------------------|-----------------------------------------------|
-| [[users]]       | `admin:org`                             | Invite or remove users from an organization  |
-| [[repository]]  | `delete_repo`                           | Delete repositories   
+| [[users]]       | `admin:org`                             | Invite or remove users from an organization   |
+| [[repository]]  | `delete_repo`                           | Delete repositories                           |
 
 
 
