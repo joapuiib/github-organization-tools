@@ -6,11 +6,6 @@ from ghot.ghot import main
 from ghot.auth import AuthManager
 
 @pytest.mark.parametrize("argv, mock_method", [
-    pytest.param(  # Check
-        ["ghot", "auth", "check"],
-        "init",
-        id="check"
-    ),
     pytest.param(  # Print token
         ["ghot", "auth", "print"],
         "print_token",

@@ -6,7 +6,7 @@ from .config import load_config, apply_config_defaults, write_config, show_confi
 from .csv_loader import CSVUserLoader
 from .org_manager import OrgManager
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 def build_parser():
     config = load_config()
@@ -27,7 +27,7 @@ def build_parser():
     # ghot auth
     auth_p = commands.add_parser('auth')
     ## ghot auth check|print|remove
-    auth_p.add_argument('auth_commands', choices=['check', 'remove', 'print'], help='Authentication command')
+    auth_p.add_argument('auth_commands', choices=['check', 'login', 'remove', 'print'], help='Authentication command')
 
     # ghot config
     config_p = commands.add_parser('config')
@@ -66,6 +66,7 @@ def build_parser():
     add_dry_option(repo_create_p)
     repo_create_p.add_argument('--public', action='store_true', help='Create public repositories')
     repo_create_p.add_argument('--private', action='store_true', help='Create private repositories')
+    repo_create_p.add_argument('--username-only', action='store_true', help='Create repositories for entries that have specified an username')
     ## ghot repo clone [-d|--destination <path>] <csv>
     repo_clone_p = repo_commands.add_parser('clone')
     repo_clone_p.add_argument("org", help='Organization name')
@@ -128,8 +129,15 @@ def handle_auth(args):
     auth = AuthManager()
     match args.auth_commands:
         case "check":
-            auth.init()
-            print(f"Authenticated as {auth.client().get_user().login}")
+            if auth.has_token():
+                print(f"Authenticated as {auth.username()} via {auth.method()}")
+            else:
+                print("Not authenticated")
+        case "login":
+            if auth.has_token():
+                print(f"Already authenticated as {auth.username()} via {auth.method()}")
+                return
+            auth.login()
         case "print":
             auth.print_token()
         case "remove":
@@ -157,7 +165,7 @@ def handle_repo(args):
             if args.public and not args.private:
                 private = False
 
-            org_manager.repo_create(args.org, users, private=private, dry=args.dry)
+            org_manager.repo_create(args.org, users, private=private, dry=args.dry, username_only=args.username_only)
 
         case "clone":
             org_manager.repo_clone(args.org, users, destination=args.destination, dry=args.dry, ssh=args.ssh)
@@ -179,8 +187,7 @@ def handle_issue(args):
 
 
 def init_org_manager(args):
-    auth = AuthManager()
-    auth.init()
+    auth = AuthManager(init=True)
     org_manager = OrgManager(auth.client())
     return org_manager
 

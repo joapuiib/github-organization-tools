@@ -37,7 +37,7 @@ class OrgManager:
 
     def _print_status(self, user, status):
         message, color, style = self._unpack_status(status)
-        print(f"{style}{color}{user.id}: {message}.{Style.RESET_ALL}")
+        print(f"{Style.BRIGHT}{Fore.GREEN}{user.id}{Style.RESET_ALL}: {style}{color}{message}.{Style.RESET_ALL}")
 
     def _confirm_action(self, prompt, force):
         return force or self._confirm_prompt(prompt)
@@ -54,7 +54,7 @@ class OrgManager:
             if not user.is_valid():
                 continue
 
-            print(f"{user.id}: ...", end="\r")
+            print(f"{Style.BRIGHT}{Fore.GREEN}{user.id}{Style.RESET_ALL}: ...", end="\r")
             result = process_func(user)
             kwargs = {}
             if isinstance(result, tuple):
@@ -177,12 +177,15 @@ class OrgManager:
         self._process_users(users, process, status_map)
 
 
-    def _process_repo_create(self, org, user, dry=False, private=True):
+    def _process_repo_create(self, org, user, dry=False, private=True, username_only=False):
         if not user.is_valid():
             return "invalid"
 
         if not user.repo:
             return "no_repo"
+
+        if username_only and not user.username:
+            return "no_username"
 
         repo = self._get_repo(org.login, user.repo)
         if repo:
@@ -200,17 +203,18 @@ class OrgManager:
             return "repo_created"
 
 
-    def repo_create(self, org_name, users, dry=False, private=True):
+    def repo_create(self, org_name, users, dry=False, private=True, username_only=False):
         org = self._get_org(org_name)
 
         def process(user):
-            return self._process_repo_create(org, user, dry, private)
+            return self._process_repo_create(org, user, dry, private, username_only)
 
         def status_map(user):
             visibility = "private" if private else "public"
             return {
                 "invalid": ("Invalid user", Fore.RED),
                 "no_repo": (f"No repository name", Fore.RESET, Style.DIM),
+                "no_username": ("No username", Fore.RESET, Style.DIM),
                 "repo_exists": (f"Repository '{org_name}/{user.repo}' already exists", Fore.GREEN),
                 "repo_created_dry": (f"Repository '{org_name}/{user.repo}' created ({visibility}) (dry)", Fore.CYAN),
                 "repo_created": (f"Repository '{org_name}/{user.repo}' created ({visibility})", Fore.CYAN),
