@@ -1,13 +1,20 @@
-from colorama import Fore, Style
-import git
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from github import GithubException
+import git
+from colorama import Fore, Style
 from git.exc import InvalidGitRepositoryError
+from github import GithubException
+
+from .progress import ProgressRenderer, detect_enabled
+
 
 class OrgManager:
-    def __init__(self, gh_client):
+    def __init__(self, gh_client, workers=8, progress=True):
         self.gh_client = gh_client
+        self.workers = max(1, int(workers))
+        self.progress_enabled = progress
+        self._renderer = None
 
     def _get_org(self, org_name):
         try:
@@ -17,7 +24,6 @@ class OrgManager:
             exit(1)
 
     def _get_repo(self, login, repo):
-        prefix = f"{login}/{repo}"
         try:
             return self.gh_client.get_repo(f"{login}/{repo}")
         except GithubException:
@@ -35,33 +41,71 @@ class OrgManager:
         style = status[2] if len(status) > 2 else Style.RESET_ALL
         return msg, color, style
 
-    def _print_status(self, user, status):
+    def _format_status_line(self, user, status):
         message, color, style = self._unpack_status(status)
-        print(f"{Style.BRIGHT}{Fore.GREEN}{user.id}{Style.RESET_ALL}: {style}{color}{message}.{Style.RESET_ALL}")
+        return f"{Style.BRIGHT}{Fore.GREEN}{user.id}{Style.RESET_ALL}: {style}{color}{message}.{Style.RESET_ALL}"
 
     def _confirm_action(self, prompt, force):
         return force or self._confirm_prompt(prompt)
 
     def _confirm_prompt(self, prompt):
+        if self._renderer is not None:
+            with self._renderer.prompt():
+                return input(f"{Fore.CYAN}{prompt} (y/N): {Fore.RESET}").strip().lower() == 'y'
         return input(f"{Fore.CYAN}{prompt} (y/N): {Fore.RESET}").strip().lower() == 'y'
 
     def _repo_dir(self, user, destination=None):
         return os.path.join(destination or '', user.id)
 
-
     def _process_users(self, users, process_func, status_map):
-        for user in users:
-            if not user.is_valid():
-                continue
+        valid = [u for u in users if u.is_valid()]
+        if not valid:
+            return
 
-            print(f"{Style.BRIGHT}{Fore.GREEN}{user.id}{Style.RESET_ALL}: ...", end="\r")
+        enabled = detect_enabled(no_progress=not self.progress_enabled)
+        renderer = ProgressRenderer(total=len(valid), enabled=enabled)
+        self._renderer = renderer
+
+        try:
+            renderer.start()
+            for user in valid:
+                renderer.begin_task(user.id, "queued")
+
+            workers = min(self.workers, len(valid))
+            if workers <= 1:
+                for user in valid:
+                    self._run_one(user, process_func, status_map, renderer)
+            else:
+                with ThreadPoolExecutor(max_workers=workers) as executor:
+                    futures = [
+                        executor.submit(self._run_one, user, process_func, status_map, renderer)
+                        for user in valid
+                    ]
+                    for fut in as_completed(futures):
+                        # propagate unexpected exceptions
+                        fut.result()
+        finally:
+            renderer.stop()
+            self._renderer = None
+
+    def _run_one(self, user, process_func, status_map, renderer):
+        renderer.update_task(user.id, "running")
+        try:
             result = process_func(user)
-            kwargs = {}
-            if isinstance(result, tuple):
-                result, kwargs = result
+        except Exception as ex:
+            line = self._format_status_line(user, (f"Unexpected error: {ex}", Fore.RED))
+            renderer.complete_task(user.id, line)
+            return
 
-            self._print_status(user, status_map(user, **kwargs)[result])
+        kwargs = {}
+        if isinstance(result, tuple):
+            result, kwargs = result
 
+        status = status_map(user, **kwargs).get(result)
+        if status is None:
+            status = (f"Unknown result: {result}", Fore.RED)
+        line = self._format_status_line(user, status)
+        renderer.complete_task(user.id, line)
 
     def _process_user_invite(self, org, user, members, invitations, dry=False):
         if not user.is_valid():
@@ -86,8 +130,6 @@ class OrgManager:
                 org.invite_user(gh_user, role="direct_member")
                 return "invite"
 
-
-
     def user_invite(self, org_name, users, dry=False):
         org = self._get_org(org_name)
 
@@ -109,7 +151,6 @@ class OrgManager:
                 "invite": (f"Invitation sent to '{user.username}'", Fore.CYAN),
             }
         self._process_users(users, process, status_map)
-
 
     def _process_user_remove(self, org, user, members, invitations, dry=False, force=False):
         if not user.is_valid():
@@ -149,12 +190,11 @@ class OrgManager:
             org.remove_from_members(gh_user)
             return "removed"
 
-
     def user_remove(self, org_name, users, dry=False, force=False):
         org = self._get_org(org_name)
 
         members = [m.login.lower() for m in org.get_members()]
-        invitations = {i.login.lower() : i for i in org.invitations()}
+        invitations = {i.login.lower(): i for i in org.invitations()}
 
         print(f"Total members: {len(members)}")
         print(f"Pending invitations: {len(invitations)}")
@@ -175,7 +215,6 @@ class OrgManager:
                 "removed": (f"User '{user.username}' removed from organization", Fore.CYAN),
             }
         self._process_users(users, process, status_map)
-
 
     def _process_repo_create(self, org, user, dry=False, private=True, username_only=False):
         if not user.is_valid():
@@ -202,7 +241,6 @@ class OrgManager:
             )
             return "repo_created"
 
-
     def repo_create(self, org_name, users, dry=False, private=True, username_only=False):
         org = self._get_org(org_name)
 
@@ -213,14 +251,13 @@ class OrgManager:
             visibility = "private" if private else "public"
             return {
                 "invalid": ("Invalid user", Fore.RED),
-                "no_repo": (f"No repository name", Fore.RESET, Style.DIM),
+                "no_repo": ("No repository name", Fore.RESET, Style.DIM),
                 "no_username": ("No username", Fore.RESET, Style.DIM),
                 "repo_exists": (f"Repository '{org_name}/{user.repo}' already exists", Fore.GREEN),
                 "repo_created_dry": (f"Repository '{org_name}/{user.repo}' created ({visibility}) (dry)", Fore.CYAN),
                 "repo_created": (f"Repository '{org_name}/{user.repo}' created ({visibility})", Fore.CYAN),
             }
         self._process_users(users, process, status_map)
-
 
     def _process_repo_invite(self, org, user, org_members, dry=False):
         if not user.is_valid():
@@ -237,7 +274,7 @@ class OrgManager:
             return "user_not_found"
 
         username = user.username.lower()
-        if not username in org_members:
+        if username not in org_members:
             return "no_org_member"
 
         repo = self._get_repo(org.login, user.repo)
@@ -258,8 +295,6 @@ class OrgManager:
             repo.add_to_collaborators(gh_user, permission="push")
             return "invite"
 
-
-    # Check user is in the organization
     def repo_invite(self, org, users, dry=False):
         org = self._get_org(org)
 
@@ -283,7 +318,6 @@ class OrgManager:
             }
         self._process_users(users, process, status_map)
 
-
     def _process_repo_clone(self, org, user, destination=None, dry=False, ssh=False):
         if not user.is_valid():
             return "invalid"
@@ -297,7 +331,7 @@ class OrgManager:
 
         if os.path.isdir(repo_dir):
             try:
-                repo = git.Repo(repo_dir)
+                git.Repo(repo_dir)
                 return "repo_already_cloned"
             except InvalidGitRepositoryError:
                 return "exists_but_not_repo"
@@ -313,7 +347,6 @@ class OrgManager:
         else:
             git.Repo.clone_from(clone_url, repo_dir)
             return "repo_cloned"
-
 
     def repo_clone(self, org_name, users, destination=None, dry=False, ssh=False):
         org = self._get_org(org_name)
@@ -337,7 +370,6 @@ class OrgManager:
             }
         self._process_users(users, process, status_map)
 
-
     def _process_repo_pull(self, user, destination=None, dry=False):
         if not user.is_valid():
             return "invalid"
@@ -360,18 +392,15 @@ class OrgManager:
             o = repo.remotes.origin
             o.fetch()
 
-            # get default branch from origin/HEAD
             default_ref = repo.git.symbolic_ref('refs/remotes/origin/HEAD')
             default_branch = default_ref.rsplit('/', 1)[-1]
 
-            # checkout default branch and reset to origin
             repo.git.checkout(default_branch)
             repo.git.reset("--hard", f"origin/{repo.active_branch}")
 
             return "repo_pull"
-        except Exception as ex:
+        except Exception:
             return "error_pulling"
-
 
     def repo_pull(self, users, destination=None, dry=False):
         def process(user):
@@ -390,7 +419,6 @@ class OrgManager:
                 "error_pulling": (f"Error pulling repository '{user.repo}' on '{repo_dir}'", Fore.RED),
             }
         self._process_users(users, process, status_map)
-
 
     def _process_repo_delete(self, org, user, force=False, dry=False):
         if not user.is_valid():
@@ -413,7 +441,6 @@ class OrgManager:
             repo.delete()
             return "deleted"
 
-
     def repo_delete(self, org_name, users, force=False, dry=False):
         org = self._get_org(org_name)
 
@@ -430,7 +457,6 @@ class OrgManager:
                 "deleted": (f"Repository '{org_name}/{user.repo}' deleted", Fore.CYAN),
             }
         self._process_users(users, process, status_map)
-
 
     def _process_issue_create(self, org, user, title, body, dry=False):
         if not user.is_valid():
@@ -455,7 +481,6 @@ class OrgManager:
             body = body.replace("\\n", "\n")
             issue = repo.create_issue(title, body)
             return "issue_created", {"number": issue.number}
-
 
     def issue_create(self, org_name, users, title, body, dry=False):
         org = self._get_org(org_name)
