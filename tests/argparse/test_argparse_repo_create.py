@@ -7,28 +7,33 @@ from ghot.org_manager import OrgManager
 @pytest.mark.parametrize("args,expected_kwargs", [
     pytest.param(  # Default
         ["ghot", "repo", "create", "org", "users.csv"],
-        {"dry": False, "private": True},
+        {"dry": False, "private": True, "username_only": False},
         id="default"
     ),
     pytest.param(  # Explicit --private
         ["ghot", "repo", "create", "--private", "org", "users.csv"],
-        {"dry": False, "private": True},
+        {"dry": False, "private": True, "username_only": False},
         id="explicit_private"
     ),
     pytest.param(  # Explicit --public
         ["ghot", "repo", "create", "--public", "org", "users.csv"],
-        {"dry": False, "private": False},
+        {"dry": False, "private": False, "username_only": False},
         id="explicit_public"
     ),
     pytest.param(  # Private overrides public
         ["ghot", "repo", "create", "--private", "--public", "org", "users.csv"],
-        {"dry": False, "private": True},
+        {"dry": False, "private": True, "username_only": False},
         id="private_overrides_public"
     ),
     pytest.param(  # Dry
         ["ghot", "repo", "create", "--dry", "org", "users.csv"],
-        {"dry": True, "private": True},
+        {"dry": True, "private": True, "username_only": False},
         id="dry"
+    ),
+    pytest.param(  # Username only
+        ["ghot", "repo", "create", "--username-only", "org", "users.csv"],
+        {"dry": False, "private": True, "username_only": True},
+        id="username_only"
     ),
 ])
 @patch("ghot.ghot.init_org_manager", autospec=True)
