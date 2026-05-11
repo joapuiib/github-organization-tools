@@ -6,7 +6,7 @@ from .config import load_config, apply_config_defaults, write_config, show_confi
 from .csv_loader import CSVUserLoader
 from .org_manager import OrgManager
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 def build_parser():
     config = load_config()
