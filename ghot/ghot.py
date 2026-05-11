@@ -16,10 +16,17 @@ def build_parser():
         parser.add_argument('--pattern-username', default='{f1}', help='Pattern for username')
         parser.add_argument('--pattern-repo', default='{f2}', help='Pattern for repository name')
         parser.add_argument('--pattern-description', default='', help='Pattern for repository description')
+        add_concurrency_options(parser)
         apply_config_defaults(parser, config)
 
     def add_dry_option(parser):
         parser.add_argument('--dry', action='store_true', help='Dry run mode')
+
+    def add_concurrency_options(parser):
+        parser.add_argument('-j', '--workers', type=int, default=8,
+                            help='Number of parallel workers (default: 8, use 1 for sequential)')
+        parser.add_argument('--no-progress', action='store_true',
+                            help='Disable live progress display')
 
     parser = argparse.ArgumentParser(description='Git tools.')
     commands = parser.add_subparsers(title="commands", dest="commands")
@@ -188,7 +195,9 @@ def handle_issue(args):
 
 def init_org_manager(args):
     auth = AuthManager(init=True)
-    org_manager = OrgManager(auth.client())
+    workers = getattr(args, 'workers', 8)
+    progress = not getattr(args, 'no_progress', False)
+    org_manager = OrgManager(auth.client(), workers=workers, progress=progress)
     return org_manager
 
 
@@ -206,8 +215,6 @@ def load_users(args):
 def main():
     sys.argv = preprocess_args(sys.argv)
     parser = build_parser()
-    args = parser.parse_args()
-
     args = parser.parse_args()
 
     try:
