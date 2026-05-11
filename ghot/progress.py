@@ -6,7 +6,6 @@ from contextlib import contextmanager
 
 from colorama import Fore, Style
 
-
 SPINNER_FRAMES = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 
 
