@@ -30,3 +30,31 @@ def test_load():
     assert users == expected
 
 
+
+
+def test_load_utf8_with_bom(tmp_path):
+    path = tmp_path / "users.csv"
+    path.write_bytes("﻿Nombre,username\nIVÁN,ivan\n".encode("utf-8"))
+
+    loader = CSVUserLoader(
+        pattern_id="{Nombre.lower()}",
+        pattern_username="{username}",
+    )
+
+    assert loader.load(path) == [User(id="iván", username="ivan")]
+
+
+def test_load_short_rows(tmp_path):
+    path = tmp_path / "users.csv"
+    path.write_text("id,repo,username\nid1,repo1\nid2,repo2,user2\n")
+
+    loader = CSVUserLoader(
+        pattern_id="{id}",
+        pattern_username="{username}",
+        pattern_repo="{repo}",
+    )
+
+    assert loader.load(path) == [
+        User(id="id1", username="", repo="repo1"),
+        User(id="id2", username="user2", repo="repo2"),
+    ]

@@ -7,7 +7,7 @@ def load_config():
         paths.append(os.path.abspath('.ghot'))
 
     config = configparser.ConfigParser(interpolation=None)
-    config.read(paths)
+    config.read(paths, encoding='utf-8')
     return config
 
 
@@ -31,7 +31,7 @@ def apply_config_defaults(parser, config):
 def write_config(key, value, global_scope=False):
     config_path = os.path.expanduser("~/.ghot") if global_scope else ".ghot"
     config = configparser.ConfigParser(interpolation=None)
-    config.read(config_path)
+    config.read(config_path, encoding='utf-8')
 
     section, key = key.split(".", 1)
 
@@ -40,7 +40,7 @@ def write_config(key, value, global_scope=False):
 
     config.set(section, key, value)
 
-    with open(config_path, "w") as configfile:
+    with open(config_path, "w", encoding="utf-8") as configfile:
         config.write(configfile)
 
 

@@ -34,11 +34,14 @@ class CSVUserLoader:
         Yields (line number, row) for each data row, loading the schema from the header.
         """
         try:
-            with open(path, newline='') as f:
+            # utf-8-sig also strips the BOM added by Excel
+            with open(path, newline='', encoding='utf-8-sig') as f:
                 reader = csv.reader(f, delimiter=',')
                 header = next(reader)
                 self.load_schema(header)
                 for row in reader:
+                    # Missing trailing columns are treated as empty
+                    row += [''] * (len(header) - len(row))
                     yield reader.line_num, row
         except FileNotFoundError:
             print(f"Could not find file: {path}")

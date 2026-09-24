@@ -84,6 +84,11 @@ from ghot.pattern_formatter import PatternFormatter
         "brian",
         id="default_value_after_filter"
     ),
+    pytest.param(
+        "{username.words(5)?name}",
+        "brian",
+        id="default_value_when_empty"
+    ),
 ])
 def test_apply_pattern(pattern, expected):
     formatter = PatternFormatter()

@@ -86,16 +86,19 @@ class PatternFormatter:
         for literal, field, _, _ in Formatter().parse(pattern):
             result += literal
             if field:
-                # Handle optional/default with "?" operator
+                # Handle optional/default with "?" operator: use the default if the
+                # expression fails or is empty
                 if '?' in field:
                     exprs = field.split('?', 1)
+                    value = ''
                     for expr in exprs:
                         try:
-                            value = self.apply_expr(expr, row)
-                            result += str(value)
-                            break
+                            value = str(self.apply_expr(expr, row))
                         except Exception:
                             continue
+                        if value:
+                            break
+                    result += value
                 else:
                     value = self.apply_expr(field, row)
                     result += str(value)
