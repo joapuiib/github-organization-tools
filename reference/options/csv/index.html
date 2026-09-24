@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -815,6 +815,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#checking-the-csv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checking the CSV
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#selecting-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selecting users
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#patterns" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -909,6 +931,28 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#checking-the-csv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checking the CSV
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#selecting-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selecting users
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#patterns" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -979,17 +1023,17 @@ to fields such as user ID, GitHub username, and repository URL.</p>
 <tr>
 <td><code>id</code></td>
 <td>Identifier for the user in <code>ghot</code>.</td>
-<td><code>{0}</code></td>
+<td><code>{f0}</code></td>
 </tr>
 <tr>
 <td><code>username</code></td>
 <td>The GitHub username of the user.</td>
-<td><code>{1}</code></td>
+<td><code>{f1}</code></td>
 </tr>
 <tr>
 <td><code>repo</code></td>
 <td>The repository name whithin the organization.</td>
-<td><code>{2}</code></td>
+<td><code>{f2}</code></td>
 </tr>
 <tr>
 <td><code>description</code></td>
@@ -1006,6 +1050,47 @@ to extract the data from the CSV file.</p>
 </span></code></pre></div>
 <p>This can be configured using <a href="#patterns">Patterns</a> through CLI options or
 through your <a href="../../commands/config/">Configuration</a>.</p>
+<h2 id="checking-the-csv">Checking the CSV<a class="headerlink" href="#checking-the-csv" title="Permanent link">&para;</a></h2>
+<p>Use <code>ghot csv show</code> to check how <code>ghot</code> reads your CSV file before running any other command.
+It accepts the same <a href="#pattern-options">Pattern Options</a> and uses the same <a href="../../commands/config/">Configuration</a>,
+and it doesn't connect to GitHub.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>ghot<span class="w"> </span>csv<span class="w"> </span>show<span class="w"> </span>users.csv
+</span></code></pre></div>
+<p>It prints each pattern and where it comes from (<code>default</code>, <code>config</code> or <code>cli</code>),
+followed by the data extracted from each row:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>CSV file: users.csv
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Patterns:
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  id: '{name.lower()}' (config)
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  username: '{username}' (cli)
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  repo: '{f2}' (default)
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  description: '' (default)
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>alex: username 'alexgp', repo 'alex-repo', description ''
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>bea: username '', repo 'bea-repo', description ''
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>  Empty username.
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>line 4: username 'nobody', repo 'nobody-repo', description ''
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>  Empty id, row will be skipped.
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>Total rows: 3
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>Warnings: 2
+</span></code></pre></div>
+<p>The following warnings are reported:</p>
+<ul>
+<li>Rows that can't be read (for example, a pattern that references a missing column).</li>
+<li>Empty <code>id</code> (the row is skipped by all commands).</li>
+<li>Empty or invalid GitHub <code>username</code>.</li>
+<li>Empty or invalid repository name.</li>
+<li>Duplicate <code>id</code> or <code>repo</code>.</li>
+</ul>
+<p>If there are any warnings, the command exits with status <code>1</code>.</p>
+<h2 id="selecting-users">Selecting users<a class="headerlink" href="#selecting-users" title="Permanent link">&para;</a></h2>
+<p>By default, commands process every row of the CSV file.
+Use <code>--id</code> to process only the users with the given <a href="#fields"><code>id</code></a>.
+It can be repeated to select several users.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ghot<span class="w"> </span>repo<span class="w"> </span>delete<span class="w"> </span>my-org<span class="w"> </span>users.csv<span class="w"> </span>--id<span class="w"> </span>user1
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>ghot<span class="w"> </span>repo<span class="w"> </span>clone<span class="w"> </span>my-org<span class="w"> </span>users.csv<span class="w"> </span>--id<span class="w"> </span>user1<span class="w"> </span>--id<span class="w"> </span>user2
+</span></code></pre></div>
+<p>The <code>id</code> is matched after applying the <a href="#patterns">patterns</a>,
+so it is the same value shown by <code>ghot csv show</code>.
+If any of the ids is not found in the CSV file, the command stops without doing anything.</p>
 <h2 id="patterns">Patterns<a class="headerlink" href="#patterns" title="Permanent link">&para;</a></h2>
 <p>You can control how <code>ghot</code> extracts data from the CSV using
 CLI options or through your <a href="../../commands/config/">Configuration</a>.</p>
@@ -1018,9 +1103,9 @@ CLI options or through your <a href="../../commands/config/">Configuration</a>.<
 </ul>
 <details class="example">
 <summary>Example: Default Patterns</summary>
-<div class="language-text highlight"><span class="filename">CSV file</span><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>id,username,repo
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>user1,user1,user1-repo
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>user2,user2,user2-repo
+<div class="language-text highlight"><span class="filename">CSV file</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>id,username,repo
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>user1,user1,user1-repo
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>user2,user2,user2-repo
 </span></code></pre></div>
 <table>
 <thead>
@@ -1056,20 +1141,20 @@ CLI options or through your <a href="../../commands/config/">Configuration</a>.<
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">CLI options</label><label for="__tabbed_1_2">Config</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span>--pattern-id<span class="w"> </span><span class="s2">&quot;{f0}&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>--pattern-username<span class="w"> </span><span class="s2">&quot;{f1}&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span>--pattern-repo<span class="w"> </span><span class="s2">&quot;{f2}&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span>--pattern-description<span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span>my-org<span class="w"> </span>users.csv
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span>--pattern-id<span class="w"> </span><span class="s2">"{f0}"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span>--pattern-username<span class="w"> </span><span class="s2">"{f1}"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span>--pattern-repo<span class="w"> </span><span class="s2">"{f2}"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span>--pattern-description<span class="w"> </span><span class="s2">""</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span>my-org<span class="w"> </span>users.csv
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.id<span class="w"> </span><span class="s2">&quot;{f0}&quot;</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.username<span class="w"> </span><span class="s2">&quot;{f1}&quot;</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.repo<span class="w"> </span><span class="s2">&quot;{f2}&quot;</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.description<span class="w"> </span><span class="s2">&quot;&quot;</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span>my-org<span class="w"> </span>users.csv
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.id<span class="w"> </span><span class="s2">"{f0}"</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.username<span class="w"> </span><span class="s2">"{f1}"</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.repo<span class="w"> </span><span class="s2">"{f2}"</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.description<span class="w"> </span><span class="s2">""</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span>my-org<span class="w"> </span>users.csv
 </span></code></pre></div>
 </div>
 </div>
@@ -1077,9 +1162,9 @@ CLI options or through your <a href="../../commands/config/">Configuration</a>.<
 </details>
 <details class="example">
 <summary>Example: Default behaviour with named patterns</summary>
-<div class="language-text highlight"><span class="filename">CSV file</span><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>id,username,repo
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>user1,user1,user1-repo
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>user2,user2,user2-repo
+<div class="language-text highlight"><span class="filename">CSV file</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>id,username,repo
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>user1,user1,user1-repo
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>user2,user2,user2-repo
 </span></code></pre></div>
 <table>
 <thead>
@@ -1115,20 +1200,20 @@ CLI options or through your <a href="../../commands/config/">Configuration</a>.<
 <div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">CLI options</label><label for="__tabbed_2_2">Config</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span>--pattern-id<span class="w"> </span><span class="s2">&quot;{id}&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span>--pattern-username<span class="w"> </span><span class="s2">&quot;{username}&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span>--pattern-repo<span class="w"> </span><span class="s2">&quot;{repo}&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span>--pattern-description<span class="w"> </span><span class="s2">&quot;{description?}&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span>my-org<span class="w"> </span>users.csv
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span>--pattern-id<span class="w"> </span><span class="s2">"{id}"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span>--pattern-username<span class="w"> </span><span class="s2">"{username}"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span>--pattern-repo<span class="w"> </span><span class="s2">"{repo}"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span>--pattern-description<span class="w"> </span><span class="s2">"{description?}"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span>my-org<span class="w"> </span>users.csv
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.id<span class="w"> </span><span class="s2">&quot;{id}&quot;</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.username<span class="w"> </span><span class="s2">&quot;{username}&quot;</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.repo<span class="w"> </span><span class="s2">&quot;{repo}&quot;</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.description<span class="w"> </span><span class="s2">&quot;{description?}&quot;</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span>my-org<span class="w"> </span>users.csv
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.id<span class="w"> </span><span class="s2">"{id}"</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.username<span class="w"> </span><span class="s2">"{username}"</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.repo<span class="w"> </span><span class="s2">"{repo}"</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.description<span class="w"> </span><span class="s2">"{description?}"</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span>my-org<span class="w"> </span>users.csv
 </span></code></pre></div>
 </div>
 </div>
@@ -1136,9 +1221,9 @@ CLI options or through your <a href="../../commands/config/">Configuration</a>.<
 </details>
 <details class="example">
 <summary>Example: Create repositories from usernames</summary>
-<div class="language-text highlight"><span class="filename">CSV file</span><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>id,username,repo
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>user1,user1,user1-repo
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>user2,user2,user2-repo
+<div class="language-text highlight"><span class="filename">CSV file</span><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>id,username,repo
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>user1,user1,user1-repo
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>user2,user2,user2-repo
 </span></code></pre></div>
 <table>
 <thead>
@@ -1164,16 +1249,16 @@ CLI options or through your <a href="../../commands/config/">Configuration</a>.<
 <div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">CLI options</label><label for="__tabbed_3_2">Config</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>ghot<span class="w"> </span>repo<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span>--pattern-repo<span class="w"> </span><span class="s2">&quot;{username}-repo&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span>--pattern-description<span class="w"> </span><span class="s2">&quot;Repository for {username}&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span>my-org<span class="w"> </span>users.csv
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>ghot<span class="w"> </span>repo<span class="w"> </span>create<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span>--pattern-repo<span class="w"> </span><span class="s2">"{username}-repo"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span>--pattern-description<span class="w"> </span><span class="s2">"Repository for {username}"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span>my-org<span class="w"> </span>users.csv
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.repo<span class="w"> </span><span class="s2">&quot;{username}-repo&quot;</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.description<span class="w"> </span><span class="s2">&quot;Repository for {username}&quot;</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>ghot<span class="w"> </span>repo<span class="w"> </span>create<span class="w"> </span>my-org<span class="w"> </span>users.csv
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.repo<span class="w"> </span><span class="s2">"{username}-repo"</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.description<span class="w"> </span><span class="s2">"Repository for {username}"</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>ghot<span class="w"> </span>repo<span class="w"> </span>create<span class="w"> </span>my-org<span class="w"> </span>users.csv
 </span></code></pre></div>
 </div>
 </div>
@@ -1221,9 +1306,9 @@ CLI options or through your <a href="../../commands/config/">Configuration</a>.<
 </table>
 <details class="example">
 <summary>Example: Using Filters</summary>
-<div class="language-text highlight"><span class="filename">CSV file</span><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>id,username,repo
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>user1,user1,user1-repo
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>user2,user2,user2-repo
+<div class="language-text highlight"><span class="filename">CSV file</span><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>id,username,repo
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>user1,user1,user1-repo
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>user2,user2,user2-repo
 </span></code></pre></div>
 <table>
 <thead>
@@ -1249,16 +1334,16 @@ CLI options or through your <a href="../../commands/config/">Configuration</a>.<
 <div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">CLI options</label><label for="__tabbed_4_2">Config</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">    </span>--pattern-id<span class="w"> </span><span class="s2">&quot;{f0.upper()}&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span>--pattern-repo<span class="w"> </span><span class="s2">&quot;{f2.replace(&#39;-&#39;, &#39;_&#39;)}&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">    </span>my-org<span class="w"> </span>users.csv
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span>--pattern-id<span class="w"> </span><span class="s2">"{f0.upper()}"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span>--pattern-repo<span class="w"> </span><span class="s2">"{f2.replace('-', '_')}"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span>my-org<span class="w"> </span>users.csv
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.id<span class="w"> </span><span class="s2">&quot;{f0.upper()}&quot;</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.repo<span class="w"> </span><span class="s2">&quot;{f2.replace(&#39;-&#39;, &#39;_&#39;)}&quot;</span>
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span>my-org<span class="w"> </span>users.csv
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.id<span class="w"> </span><span class="s2">"{f0.upper()}"</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.repo<span class="w"> </span><span class="s2">"{f2.replace('-', '_')}"</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span>my-org<span class="w"> </span>users.csv
 </span></code></pre></div>
 </div>
 </div>
@@ -1266,8 +1351,8 @@ CLI options or through your <a href="../../commands/config/">Configuration</a>.<
 </details>
 <details class="example">
 <summary>Example: More complex filters</summary>
-<div class="language-text highlight"><span class="filename">CSV file</span><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>name,surname,username
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>fizz,buzz bazz,fizzbuzz
+<div class="language-text highlight"><span class="filename">CSV file</span><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>name,surname,username
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>fizz,buzz bazz,fizzbuzz
 </span></code></pre></div>
 <table>
 <thead>
@@ -1303,20 +1388,20 @@ CLI options or through your <a href="../../commands/config/">Configuration</a>.<
 <div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">CLI options</label><label for="__tabbed_5_2">Config</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span>--pattern-id<span class="w"> </span><span class="s2">&quot;{f0.lower()}.{f1.words(0).lower()}&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span>--pattern-username<span class="w"> </span><span class="s2">&quot;{f2}&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="w">    </span>--pattern-repo<span class="w"> </span><span class="s2">&quot;{f1.words(0).title()}{f0.title()}-Repository&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="w">    </span>--pattern-description<span class="w"> </span><span class="s2">&quot;Repository for {f0.title()} {f1.title()}&quot;</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-14-6"><a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="w">    </span>my-org<span class="w"> </span>users.csv
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">    </span>--pattern-id<span class="w"> </span><span class="s2">"{f0.lower()}.{f1.words(0).lower()}"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">    </span>--pattern-username<span class="w"> </span><span class="s2">"{f2}"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="w">    </span>--pattern-repo<span class="w"> </span><span class="s2">"{f1.words(0).title()}{f0.title()}-Repository"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="w">    </span>--pattern-description<span class="w"> </span><span class="s2">"Repository for {f0.title()} {f1.title()}"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="w">    </span>my-org<span class="w"> </span>users.csv
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.id<span class="w"> </span><span class="s2">&quot;{f0.lower()}.{f1.words(0).lower()}&quot;</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.username<span class="w"> </span><span class="s2">&quot;{f2}&quot;</span>
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.repo<span class="w"> </span><span class="s2">&quot;{f1.words(0).title()}{f0.title()}-Repository&quot;</span>
-</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.description<span class="w"> </span><span class="s2">&quot;Repository for {f0.title()} {f1.title()}&quot;</span>
-</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span>my-org<span class="w"> </span>users.csv
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.id<span class="w"> </span><span class="s2">"{f0.lower()}.{f1.words(0).lower()}"</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.username<span class="w"> </span><span class="s2">"{f2}"</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.repo<span class="w"> </span><span class="s2">"{f1.words(0).title()}{f0.title()}-Repository"</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>ghot<span class="w"> </span>config<span class="w"> </span>csv.pattern.description<span class="w"> </span><span class="s2">"Repository for {f0.title()} {f1.title()}"</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>ghot<span class="w"> </span>user<span class="w"> </span>invite<span class="w"> </span>my-org<span class="w"> </span>users.csv
 </span></code></pre></div>
 </div>
 </div>
@@ -1336,19 +1421,19 @@ CLI options or through your <a href="../../commands/config/">Configuration</a>.<
 <tr>
 <td><code>csv.pattern.id</code></td>
 <td><code>--pattern-id</code></td>
-<td><code>{id}</code></td>
+<td><code>{f0}</code></td>
 <td>Pattern for <a href="#fields"><code>id</code> field</a>.</td>
 </tr>
 <tr>
 <td><code>csv.pattern.username</code></td>
 <td><code>--pattern-username</code></td>
-<td><code>{username}</code></td>
+<td><code>{f1}</code></td>
 <td>Pattern for <a href="#fields"><code>username</code> field</a>.</td>
 </tr>
 <tr>
 <td><code>csv.pattern.repo</code></td>
 <td><code>--pattern-repo</code></td>
-<td><code>{repo}</code></td>
+<td><code>{f2}</code></td>
 <td>Pattern for <a href="#fields"><code>repo</code> field</a>.</td>
 </tr>
 <tr>
@@ -1379,7 +1464,7 @@ CLI options or through your <a href="../../commands/config/">Configuration</a>.<
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 28, 2025 19:49:19 UTC">April 28, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 24, 2026 09:47:48 UTC">September 24, 2026</span>
   </span>
 
     
@@ -1477,7 +1562,7 @@ CLI options or through your <a href="../../commands/config/">Configuration</a>.<
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["announce.dismiss", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "navigation.top", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.top", "toc.follow", "search.share", "search.suggest"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
