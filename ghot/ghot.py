@@ -31,6 +31,8 @@ def build_parser():
     config = load_config()
     def add_csv_options(parser):
         parser.add_argument('csv', help='CSV file')
+        parser.add_argument('--id', dest='ids', action='append', metavar='ID',
+                            help='Only process the user with this id (can be repeated)')
         parser.add_argument('--pattern-id', action=StorePattern, default=PATTERN_DEFAULTS['id'], help='Pattern for user ID')
         parser.add_argument('--pattern-username', action=StorePattern, default=PATTERN_DEFAULTS['username'], help='Pattern for username')
         parser.add_argument('--pattern-repo', action=StorePattern, default=PATTERN_DEFAULTS['repo'], help='Pattern for repository name')
@@ -186,7 +188,7 @@ def handle_csv(args):
                 else:
                     sources[field] = "default"
 
-            warnings = csv_show(csv_loader(args), args.csv, sources)
+            warnings = csv_show(csv_loader(args), args.csv, sources, ids=args.ids)
             if warnings:
                 sys.exit(1)
 
@@ -271,6 +273,12 @@ def csv_loader(args):
 
 def load_users(args):
     users = csv_loader(args).load(args.csv)
+    if args.ids:
+        found = {user.id for user in users}
+        missing = [id for id in args.ids if id not in found]
+        if missing:
+            sys.exit(f"Id not found in {args.csv}: {', '.join(missing)}")
+        users = [user for user in users if user.id in args.ids]
     return users
 
 

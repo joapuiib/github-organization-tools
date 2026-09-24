@@ -29,9 +29,10 @@ def check_user(user):
     return warnings
 
 
-def csv_show(loader, path, sources):
+def csv_show(loader, path, sources, ids=None):
     """
     Prints the patterns and the data extracted from each row of the CSV file.
+    If ids is given, only the rows with those ids are shown.
     Returns the number of warnings found.
     """
     print(f"CSV file: {path}")
@@ -46,12 +47,13 @@ def csv_show(loader, path, sources):
     seen_repos = {}
 
     for line, row in loader.rows(path):
-        total += 1
         label = f"line {line}"
 
         try:
             user = loader.map(row)
         except Exception as ex:
+            if ids:
+                continue
             warnings = [f"Could not read row: {ex}"]
             user = None
         else:
@@ -67,6 +69,10 @@ def csv_show(loader, path, sources):
                     warnings.append(f"Duplicate repo (also on line {seen_repos[repo]})")
                 seen_repos.setdefault(repo, line)
 
+        if ids and user.id not in ids:
+            continue
+
+        total += 1
         total_warnings += len(warnings)
         color = Fore.YELLOW if warnings else Fore.GREEN
         details = ""
@@ -75,6 +81,12 @@ def csv_show(loader, path, sources):
         print(f"{Style.BRIGHT}{color}{label}{Style.RESET_ALL}: {details}")
         for warning in warnings:
             print(f"  {Fore.YELLOW}{warning}.{Fore.RESET}")
+
+    if ids:
+        for id in ids:
+            if id not in seen_ids:
+                total_warnings += 1
+                print(f"{Style.BRIGHT}{Fore.YELLOW}{id}{Style.RESET_ALL}: {Fore.YELLOW}Id not found.{Fore.RESET}")
 
     print(f"Total rows: {total}")
     color = Fore.YELLOW if total_warnings else Fore.GREEN

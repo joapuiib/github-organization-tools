@@ -24,7 +24,7 @@ def test_check_user(user, expected):
     assert check_user(user) == expected
 
 
-def run_csv_show(csv_content, capsys, **patterns):
+def run_csv_show(csv_content, capsys, ids=None, **patterns):
     loader = CSVUserLoader(
         pattern_id=patterns.get("id", "{f0}"),
         pattern_username=patterns.get("username", "{f1}"),
@@ -32,7 +32,7 @@ def run_csv_show(csv_content, capsys, **patterns):
         pattern_description=patterns.get("description", ""),
     )
     with patch('builtins.open', return_value=StringIO(csv_content), create=True):
-        warnings = csv_show(loader, "users.csv", SOURCES)
+        warnings = csv_show(loader, "users.csv", SOURCES, ids=ids)
     return warnings, capsys.readouterr().out
 
 
@@ -65,3 +65,27 @@ def test_csv_show_unknown_field(capsys):
 
     assert warnings == 1
     assert "Could not read row: Field 'missing' not found in schema" in out
+
+
+def test_csv_show_ids(capsys):
+    warnings, out = run_csv_show("id,username,repo\nid1,user1,repo1\nid2,user2,repo2\n", capsys, ids=["id2"])
+
+    assert warnings == 0
+    assert "repo 'repo2'" in out
+    assert "repo 'repo1'" not in out
+    assert "Total rows: 1" in out
+
+
+def test_csv_show_ids_duplicate_outside_filter(capsys):
+    warnings, out = run_csv_show("id,username,repo\nid1,user1,repo1\nid2,user2,REPO1\n", capsys, ids=["id2"])
+
+    assert warnings == 1
+    assert "Duplicate repo (also on line 2)" in out
+
+
+def test_csv_show_ids_not_found(capsys):
+    warnings, out = run_csv_show("id,username,repo\nid1,user1,repo1\n", capsys, ids=["nope"])
+
+    assert warnings == 1
+    assert "nope" in out
+    assert "Id not found" in out

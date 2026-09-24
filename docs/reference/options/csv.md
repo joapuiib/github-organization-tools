@@ -68,6 +68,20 @@ The following warnings are reported:
 
 If there are any warnings, the command exits with status `1`.
 
+## Selecting users
+By default, commands process every row of the CSV file.
+Use `--id` to process only the users with the given [`id`](#fields).
+It can be repeated to select several users.
+
+```bash
+ghot repo delete my-org users.csv --id user1
+ghot repo clone my-org users.csv --id user1 --id user2
+```
+
+The `id` is matched after applying the [patterns](#patterns),
+so it is the same value shown by `ghot csv show`.
+If any of the ids is not found in the CSV file, the command stops without doing anything.
+
 ## Patterns
 You can control how `ghot` extracts data from the CSV using
 CLI options or through your [[config]].
