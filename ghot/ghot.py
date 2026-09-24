@@ -29,6 +29,7 @@ def build_parser():
                             help='Disable live progress display')
 
     parser = argparse.ArgumentParser(description='Git tools.')
+    parser.add_argument('-V', '--version', action='version', version=f'%(prog)s {__version__}')
     commands = parser.add_subparsers(title="commands", dest="commands")
 
     # ghot auth
@@ -216,6 +217,10 @@ def main():
     sys.argv = preprocess_args(sys.argv)
     parser = build_parser()
     args = parser.parse_args()
+
+    if args.commands is None:
+        parser.print_help()
+        return
 
     try:
         match args.commands:

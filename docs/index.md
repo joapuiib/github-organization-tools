@@ -29,6 +29,12 @@ This tool can be installed via `pip`:
 pip install ghot
 ```
 
+You can check the installed version with:
+
+```bash
+ghot --version
+```
+
 ## Quick Start Example
 - Create a new [:octicons-organization-16: organization][org] in :simple-github: GitHub.
 
