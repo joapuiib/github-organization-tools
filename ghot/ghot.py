@@ -7,7 +7,7 @@ from .csv_loader import CSVUserLoader
 from .csv_show import csv_show
 from .org_manager import OrgManager
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 PATTERN_DEFAULTS = {
     'id': '{f0}',
