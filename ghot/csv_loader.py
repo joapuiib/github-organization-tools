@@ -22,16 +22,24 @@ class CSVUserLoader:
 
 
     def __repr__(self):
-        return f"CSVUserLoader(pattern_id={self.pattern_id}, pattern_username={self.pattern_username}, pattern_repo={self.pattern_repo}, pattern_description={self.pattern_description}, lower_id={self.lower_id}, remove_accents={self.remove_accents})"
+        return f"CSVUserLoader(pattern_id={self.pattern_id}, pattern_username={self.pattern_username}, pattern_repo={self.pattern_repo}, pattern_description={self.pattern_description})"
 
 
     def load(self, path):
+        return [ self.map(row) for _, row in self.rows(path) ]
+
+
+    def rows(self, path):
+        """
+        Yields (line number, row) for each data row, loading the schema from the header.
+        """
         try:
             with open(path, newline='') as f:
                 reader = csv.reader(f, delimiter=',')
                 header = next(reader)
                 self.load_schema(header)
-                return [ self.map(row) for row in reader ]
+                for row in reader:
+                    yield reader.line_num, row
         except FileNotFoundError:
             print(f"Could not find file: {path}")
             exit(1)

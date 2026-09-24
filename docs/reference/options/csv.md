@@ -13,9 +13,9 @@ to fields such as user ID, GitHub username, and repository URL.
 
 | Field | Description | Default pattern |
 |-------|-------------|---------|
-| `id` | Identifier for the user in `ghot`. | `{0}` |
-| `username` | The GitHub username of the user. | `{1}` |
-| `repo` | The repository name whithin the organization. | `{2}` |
+| `id` | Identifier for the user in `ghot`. | `{f0}` |
+| `username` | The GitHub username of the user. | `{f1}` |
+| `repo` | The repository name whithin the organization. | `{f2}` |
 | `description` | Description of the repository. | `""` |
 
 By default, `ghot` uses the colums first columns
@@ -30,7 +30,43 @@ user2,user2,user2-repo
 This can be configured using [Patterns](#patterns) through CLI options or
 through your [[config]].
 
+## Checking the CSV
+Use `ghot csv show` to check how `ghot` reads your CSV file before running any other command.
+It accepts the same [Pattern Options](#pattern-options) and uses the same [[config]],
+and it doesn't connect to GitHub.
 
+```bash
+ghot csv show users.csv
+```
+
+It prints each pattern and where it comes from (`default`, `config` or `cli`),
+followed by the data extracted from each row:
+
+```
+CSV file: users.csv
+Patterns:
+  id: '{name.lower()}' (config)
+  username: '{username}' (cli)
+  repo: '{f2}' (default)
+  description: '' (default)
+alex: username 'alexgp', repo 'alex-repo', description ''
+bea: username '', repo 'bea-repo', description ''
+  Empty username.
+line 4: username 'nobody', repo 'nobody-repo', description ''
+  Empty id, row will be skipped.
+Total rows: 3
+Warnings: 2
+```
+
+The following warnings are reported:
+
+- Rows that can't be read (for example, a pattern that references a missing column).
+- Empty `id` (the row is skipped by all commands).
+- Empty or invalid GitHub `username`.
+- Empty or invalid repository name.
+- Duplicate `id` or `repo`.
+
+If there are any warnings, the command exits with status `1`.
 
 ## Patterns
 You can control how `ghot` extracts data from the CSV using
@@ -210,9 +246,9 @@ Filters are used to transform the data extracted from the CSV file.
 ## Pattern Options
 | Config Key | CLI Option | Default Value | Description |
 |--------|---------------|-------------|--------|
-| `csv.pattern.id` | `--pattern-id` | `{id}` | Pattern for [`id` field][fields]. |
-| `csv.pattern.username` | `--pattern-username` | `{username}` | Pattern for [`username` field][fields]. |
-| `csv.pattern.repo` | `--pattern-repo` | `{repo}` | Pattern for [`repo` field][fields]. |
+| `csv.pattern.id` | `--pattern-id` | `{f0}` | Pattern for [`id` field][fields]. |
+| `csv.pattern.username` | `--pattern-username` | `{f1}` | Pattern for [`username` field][fields]. |
+| `csv.pattern.repo` | `--pattern-repo` | `{f2}` | Pattern for [`repo` field][fields]. |
 | `csv.pattern.description` | `--pattern-description` | `""` | Pattern for [`description` field][fields]. |
 
 [fields]: #fields
