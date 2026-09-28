@@ -24,6 +24,11 @@ from ghot.pattern_formatter import PatternFormatter
         "user.username",
         id="index_1"
     ),
+    pytest.param(
+        "f5",
+        "",
+        id="index_out_of_bounds"
+    ),
 ])
 def test_resolve_field(field_name, expected):
     formatter = PatternFormatter()
@@ -45,11 +50,6 @@ def test_resolve_field(field_name, expected):
         "not_a_field",
         "not found in schema",
         id="not_a_field"
-    ),
-    pytest.param(
-        "f5",
-        "out of range",
-        id="index_out_of_bounds"
     ),
 ])
 def test_resolve_field_error(field_name, expected):

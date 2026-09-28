@@ -38,15 +38,12 @@ class PatternFormatter:
         match = re.match(r'^f(\d+)$', name_or_index)
         if match:
             index = int(match.group(1))
-            if index < 0 or index >= len(row):
-                r = ','.join(row)
-                raise ValueError(f"Index {index} out of range for row '{r}'")
-            return row[index]
         elif name_or_index in self.schema:
             index = self.schema.get(name_or_index)
-            return row[index]
         else:
             raise ValueError(f"Field '{name_or_index}' not found in schema")
+        # Columns beyond the end of the row are treated as empty
+        return row[index] if index < len(row) else ''
 
     def apply_expr(self, expr, row):
         tree = ast.parse(expr, mode='eval')
