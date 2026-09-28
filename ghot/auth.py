@@ -1,4 +1,5 @@
 import getpass
+import os
 import keyring
 from keyring.errors import KeyringError, NoKeyringError
 import shutil
@@ -7,6 +8,7 @@ import logging
 from github import Github, Auth
 
 SERVICE_NAME = "github_pat"
+ENV_VARS = ("GH_TOKEN", "GITHUB_TOKEN")
 
 logging.basicConfig(format='[auth] %(message)s', level=logging.INFO)
 
@@ -22,6 +24,8 @@ class AuthManager:
             self.login()
 
     def method(self):
+        if self._env_token():
+            return "Environment variable"
         if self.gh_available:
             return "GitHub CLI"
         elif self.keyring_available:
@@ -46,7 +50,18 @@ class AuthManager:
         except (KeyringError, NoKeyringError, RuntimeError):
             return False
 
+    def _env_token(self):
+        for var in ENV_VARS:
+            token = os.environ.get(var, "").strip()
+            if token:
+                return token
+        return None
+
     def _load_token(self):
+        self.token = self._env_token()
+        if self.token:
+            return
+
         if self.gh_available:
             try:
                 self.token = subprocess.check_output(
@@ -58,10 +73,7 @@ class AuthManager:
                 pass  # Not authenticated via gh CLI
 
         if self.keyring_available:
-            logging.info("GitHub CLI not found. Checking keyring for stored token...")
             self.token = keyring.get_password(SERVICE_NAME, self.system_user)
-        else:
-            logging.warning("No keyring backend available. Cannot retrieve stored token.")
 
 
     def login(self):
@@ -82,10 +94,18 @@ class AuthManager:
             except subprocess.CalledProcessError:
                 print("GitHub CLI authentication failed")
 
+        self.token = getpass.getpass("Enter your GitHub Personal Access Token: ").strip() or None
+        if not self.token:
+            return
+
         if self.keyring_available:
-            self.token = getpass.getpass("Enter your GitHub Personal Access Token: ").strip()
             if input("Save this token for future use? (y/n): ").strip().lower() == 'y':
                 keyring.set_password(SERVICE_NAME, self.system_user, self.token)
+        else:
+            logging.warning(
+                "No keyring backend available: the token will not be saved. "
+                f"Set {ENV_VARS[0]} or install the GitHub CLI (gh) to avoid entering it every time."
+            )
 
 
     def has_token(self):

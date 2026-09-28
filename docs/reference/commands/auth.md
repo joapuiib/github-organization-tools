@@ -9,8 +9,17 @@ GitHub Organization Tools requires authentication to access the GitHub API, whic
 
 [pat]: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 
-The application will try to authenticate using `gh`, the [:simple-github: GitHub CLI tool][gh].
-If `gh` is not available, you will be prompted to enter your PAT manually.
+The application looks for a token in the following order:
+
+1. The `GH_TOKEN` or `GITHUB_TOKEN` environment variable.
+2. `gh`, the [:simple-github: GitHub CLI tool][gh].
+3. A token previously stored in the system [`keyring`][keyring].
+
+If none is found, you will be prompted to enter your PAT manually.
+
+```bash
+export GH_TOKEN=<token>
+```
 
 [gh]: https://cli.github.com/
 

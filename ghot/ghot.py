@@ -256,6 +256,8 @@ def handle_issue(args):
 
 def init_org_manager(args):
     auth = AuthManager(init=True)
+    if not auth.has_token():
+        sys.exit("Not authenticated. Run 'ghot auth login', set GH_TOKEN, or install the GitHub CLI (gh).")
     workers = getattr(args, 'workers', 8)
     progress = not getattr(args, 'no_progress', False)
     org_manager = OrgManager(auth.client(), workers=workers, progress=progress)
