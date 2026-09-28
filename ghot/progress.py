@@ -41,6 +41,7 @@ class ProgressRenderer:
         self._thread = None
         self._spin_idx = 0
         self._lines_drawn = 0
+        self._stopped = False
 
     def __enter__(self):
         self.start()
@@ -57,7 +58,10 @@ class ProgressRenderer:
         self._thread = threading.Thread(target=self._refresh_loop, daemon=True)
         self._thread.start()
 
-    def stop(self):
+    def stop(self, cancelled=False):
+        with self._lock:
+            # Tasks still running after a cancellation must not print anything
+            self._stopped = True
         if not self.enabled:
             return
         self._stop.set()
@@ -65,7 +69,7 @@ class ProgressRenderer:
             self._thread.join(timeout=1.0)
         with self._lock:
             self._erase()
-            self._print_summary()
+            self._print_summary(cancelled)
             self._show_cursor()
             self.stream.flush()
 
@@ -82,6 +86,8 @@ class ProgressRenderer:
 
     def complete_task(self, uid, line):
         with self._lock:
+            if self._stopped:
+                return
             self._completed += 1
             if uid in self._active:
                 self._active.pop(uid, None)
@@ -101,6 +107,8 @@ class ProgressRenderer:
     def print_line(self, line):
         """Print a static line above the active section."""
         with self._lock:
+            if self._stopped:
+                return
             if self.enabled:
                 self._erase()
                 self.stream.write(line + "\n")
@@ -186,12 +194,13 @@ class ProgressRenderer:
         filled = int(width * done / total)
         return "[" + Fore.GREEN + "█" * filled + Style.RESET_ALL + " " * (width - filled) + "]"
 
-    def _print_summary(self):
+    def _print_summary(self, cancelled=False):
         if not self._started_at:
             return
         elapsed = time.time() - self._started_at
+        label = f"{Fore.YELLOW}Cancelled" if cancelled else "Done"
         self.stream.write(
-            f"{Style.BRIGHT}Done{Style.RESET_ALL} "
+            f"{Style.BRIGHT}{label}{Style.RESET_ALL} "
             f"{self._completed}/{self.total} "
             f"{Style.DIM}in {elapsed:.1f}s{Style.RESET_ALL}\n"
         )

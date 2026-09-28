@@ -1,4 +1,5 @@
 import argparse
+import os
 import sys
 
 from .auth import AuthManager
@@ -7,7 +8,7 @@ from .csv_loader import CSVUserLoader
 from .csv_show import csv_show
 from .org_manager import OrgManager
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 PATTERN_DEFAULTS = {
     'id': '{f0}',
@@ -312,7 +313,11 @@ def main():
                 handle_issue(args)
 
     except KeyboardInterrupt:
-        print("\nCancelled by user.")
+        print("\nCancelled by user.", flush=True)
+        sys.stderr.flush()
+        # Exit immediately: Python can't kill threads, and a normal exit would
+        # wait for the workers still running a task
+        os._exit(130)
     except ValueError as e:
         # print on stderr
         print(e, file=sys.stderr)

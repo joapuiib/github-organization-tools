@@ -66,6 +66,7 @@ class OrgManager:
         renderer = ProgressRenderer(total=len(valid), enabled=enabled)
         self._renderer = renderer
 
+        cancelled = False
         try:
             renderer.start()
             for user in valid:
@@ -76,7 +77,8 @@ class OrgManager:
                 for user in valid:
                     self._run_one(user, process_func, status_map, renderer)
             else:
-                with ThreadPoolExecutor(max_workers=workers) as executor:
+                executor = ThreadPoolExecutor(max_workers=workers)
+                try:
                     futures = [
                         executor.submit(self._run_one, user, process_func, status_map, renderer)
                         for user in valid
@@ -84,8 +86,16 @@ class OrgManager:
                     for fut in as_completed(futures):
                         # propagate unexpected exceptions
                         fut.result()
+                except BaseException:
+                    # Drop queued tasks and don't wait for the running ones
+                    executor.shutdown(wait=False, cancel_futures=True)
+                    raise
+                executor.shutdown()
+        except KeyboardInterrupt:
+            cancelled = True
+            raise
         finally:
-            renderer.stop()
+            renderer.stop(cancelled=cancelled)
             self._renderer = None
 
     def _run_one(self, user, process_func, status_map, renderer):
