@@ -6,6 +6,7 @@ This section includes the reference for the `ghot` commands and options.
 - [[config]]
 - [[users]]
 - [[repository]]
+- [[completion]]
 
 ## Options
 - [[csv]]

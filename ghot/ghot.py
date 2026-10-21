@@ -2,13 +2,19 @@ import argparse
 import os
 import sys
 
+import shtab
+
 from .auth import AuthManager
+from .completion import SHELLS, generate_completion, install_completion, warn_if_outdated
 from .config import load_config, apply_config_defaults, write_config, show_config
 from .csv_loader import CSVUserLoader
 from .csv_show import csv_show
+from .org_cache import list_orgs
 from .org_manager import OrgManager
 
 __version__ = "0.5.0"
+
+ORGS_COMMAND = 'ghot _orgs'
 
 PATTERN_DEFAULTS = {
     'id': '{f0}',
@@ -31,7 +37,7 @@ class StorePattern(argparse.Action):
 def build_parser():
     config = load_config()
     def add_csv_options(parser):
-        parser.add_argument('csv', help='CSV file')
+        parser.add_argument('csv', help='CSV file').complete = shtab.glob('*.csv')
         parser.add_argument('--id', dest='ids', action='append', metavar='ID',
                             help='Only process the user with this id (can be repeated)')
         parser.add_argument('--pattern-id', action=StorePattern, default=PATTERN_DEFAULTS['id'], help='Pattern for user ID')
@@ -39,6 +45,9 @@ def build_parser():
         parser.add_argument('--pattern-repo', action=StorePattern, default=PATTERN_DEFAULTS['repo'], help='Pattern for repository name')
         parser.add_argument('--pattern-description', action=StorePattern, default=PATTERN_DEFAULTS['description'], help='Pattern for repository description')
         apply_config_defaults(parser, config)
+
+    def add_org_argument(parser):
+        parser.add_argument('org', help='Organization name').complete = shtab.cmd(ORGS_COMMAND)
 
     def add_dry_option(parser):
         parser.add_argument('--dry', action='store_true', help='Dry run mode')
@@ -90,13 +99,13 @@ def build_parser():
     user_commands = user_p.add_subparsers(title="commands", dest="user_commands", metavar="<command>")
     ## ghot user invite <org> <csv>
     user_invite_p = user_commands.add_parser('invite', help='Invite users to the organization', description='Invite users to the organization.')
-    user_invite_p.add_argument("org", help='Organization name')
+    add_org_argument(user_invite_p)
     add_csv_options(user_invite_p)
     add_concurrency_options(user_invite_p)
     add_dry_option(user_invite_p)
     ## ghot user remove <org> <csv> [-f|--force]
     user_remove_p = user_commands.add_parser('remove', help='Remove users from the organization', description='Remove users from the organization.')
-    user_remove_p.add_argument("org", help='Organization name')
+    add_org_argument(user_remove_p)
     add_csv_options(user_remove_p)
     add_concurrency_options(user_remove_p)
     add_dry_option(user_remove_p)
@@ -108,7 +117,7 @@ def build_parser():
     repo_commands = repo_p.add_subparsers(title="commands", dest="repo_commands", metavar="<command>")
     ## ghot repo create [--public] [--private] <org> <csv>
     repo_create_p = repo_commands.add_parser('create', help='Create a repository for each user', description='Create a repository for each user.')
-    repo_create_p.add_argument("org", help='Organization name')
+    add_org_argument(repo_create_p)
     add_csv_options(repo_create_p)
     add_concurrency_options(repo_create_p)
     add_dry_option(repo_create_p)
@@ -117,7 +126,7 @@ def build_parser():
     repo_create_p.add_argument('--username-only', action='store_true', help='Create repositories for entries that have specified an username')
     ## ghot repo clone [-d|--destination <path>] <csv>
     repo_clone_p = repo_commands.add_parser('clone', help="Clone each user's repository", description="Clone each user's repository.")
-    repo_clone_p.add_argument("org", help='Organization name')
+    add_org_argument(repo_clone_p)
     add_csv_options(repo_clone_p)
     add_concurrency_options(repo_clone_p)
     add_dry_option(repo_clone_p)
@@ -131,14 +140,14 @@ def build_parser():
     repo_pull_p.add_argument('-d', '--destination', help='Destination directory where the repositoiry will be pulled')
     ## ghot repo delete [-f|--force] <org> <csv>
     repo_delete_p = repo_commands.add_parser('delete', help="Delete each user's repository", description="Delete each user's repository.")
-    repo_delete_p.add_argument('org', help='Organization name')
+    add_org_argument(repo_delete_p)
     add_csv_options(repo_delete_p)
     add_concurrency_options(repo_delete_p)
     add_dry_option(repo_delete_p)
     repo_delete_p.add_argument('-f', '--force', action='store_true', default=False, help='Force deletion')
     ## ghot repo invite <org> <csv>
     repo_invite_p = repo_commands.add_parser('invite', help='Invite each user as a collaborator to their repository', description='Invite each user as a collaborator to their repository.')
-    repo_invite_p.add_argument('org', help='Organization name')
+    add_org_argument(repo_invite_p)
     add_csv_options(repo_invite_p)
     add_concurrency_options(repo_invite_p)
     add_dry_option(repo_invite_p)
@@ -149,12 +158,22 @@ def build_parser():
     issue_commands = issue_p.add_subparsers(title="commands", dest="issue_commands", metavar="<command>")
     ## ghot issue create <org> <csv> <title> <body>
     issue_create_p = issue_commands.add_parser('create', help="Create an issue in each user's repository", description="Create an issue in each user's repository.")
-    issue_create_p.add_argument('org', help='Organization name')
+    add_org_argument(issue_create_p)
     add_csv_options(issue_create_p)
     add_concurrency_options(issue_create_p)
     issue_create_p.add_argument('title', help='Issue title')
     issue_create_p.add_argument('body', help='Issue body')
     add_dry_option(issue_create_p)
+
+    # ghot _orgs (hidden, used by the shell completion)
+    commands.add_parser('_orgs')
+    # argparse prints ==SUPPRESS== for hidden subcommands, so drop it from the help listing
+    commands._choices_actions = [a for a in commands._choices_actions if a.dest != '_orgs']
+
+    # ghot completion [--install] <shell>
+    completion_p = commands.add_parser('completion', help='Generate or install shell completions', description='Generate or install shell completions.')
+    completion_p.add_argument('shell', choices=SHELLS, help='Shell to generate completions for')
+    completion_p.add_argument('--install', action='store_true', help='Install the completion script in the user directory instead of printing it')
 
     return parser
 
@@ -192,6 +211,13 @@ def handle_csv(args):
             warnings = csv_show(csv_loader(args), args.csv, sources, ids=args.ids)
             if warnings:
                 sys.exit(1)
+
+
+def handle_completion(args, parser):
+    if args.install:
+        install_completion(parser, args.shell, __version__)
+    else:
+        print(generate_completion(parser, args.shell, __version__))
 
 
 def handle_auth(args):
@@ -292,6 +318,18 @@ def main():
 
     if args.commands is None:
         parser.print_help()
+        return
+    if args.commands not in ("_orgs", "completion"):
+        warn_if_outdated(__version__)
+
+    if args.commands == "_orgs":
+        print("\n".join(list_orgs()))
+        return
+    if args.commands == "completion":
+        try:
+            handle_completion(args, parser)
+        except ValueError as e:
+            sys.exit(str(e))
         return
     if getattr(args, f"{args.commands}_commands") is None:
         args.group_parser.print_help()

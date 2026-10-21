@@ -35,6 +35,16 @@ You can check the installed version with:
 ghot --version
 ```
 
+### Shell completion
+`ghot` can complete commands, options and CSV file paths in your shell.
+To install the completions for bash or zsh, run:
+
+```bash
+ghot completion --install bash
+```
+
+See [[completion]] for more details.
+
 ## Quick Start Example
 - Create a new [:octicons-organization-16: organization][org] in :simple-github: GitHub.
 

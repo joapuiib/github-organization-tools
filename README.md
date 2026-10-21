@@ -16,6 +16,13 @@ This tool can be installed via `pip`:
 pip install ghot
 ```
 
+## Shell Completion
+Completion scripts are available for bash, zsh and tcsh. To enable them in your user directory:
+
+```bash
+ghot completion --install bash
+```
+
 ## Quick Start Example
 - Create a new [organization][org] in GitHub.
 

@@ -115,5 +115,6 @@ nav:
       - reference/commands/config.md
       - reference/commands/users.md
       - reference/commands/repositories.md
+      - reference/commands/completion.md
     - Options:
       - reference/options/csv.md
