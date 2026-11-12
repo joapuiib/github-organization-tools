@@ -12,7 +12,7 @@ from .csv_show import csv_show
 from .org_cache import list_orgs
 from .org_manager import OrgManager
 
-__version__ = "0.5.0"
+__version__ = "0.5.1"
 
 ORGS_COMMAND = 'ghot _orgs'
 
