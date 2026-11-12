@@ -16,6 +16,14 @@ __version__ = "0.5.0"
 
 ORGS_COMMAND = 'ghot _orgs'
 
+
+def orgs_completion():
+    # Discard stderr so a failing 'ghot _orgs' (e.g. an older ghot earlier in
+    # PATH) does not print usage errors over the prompt. tcsh cannot redirect
+    # stderr alone, so it keeps the plain command.
+    quiet = shtab.cmd(f'{ORGS_COMMAND} 2>/dev/null')
+    return {**quiet, 'tcsh': shtab.cmd(ORGS_COMMAND)['tcsh']}
+
 PATTERN_DEFAULTS = {
     'id': '{f0}',
     'username': '{f1}',
@@ -47,7 +55,7 @@ def build_parser():
         apply_config_defaults(parser, config)
 
     def add_org_argument(parser):
-        parser.add_argument('org', help='Organization name').complete = shtab.cmd(ORGS_COMMAND)
+        parser.add_argument('org', help='Organization name').complete = orgs_completion()
 
     def add_dry_option(parser):
         parser.add_argument('--dry', action='store_true', help='Dry run mode')
